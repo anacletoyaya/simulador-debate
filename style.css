@@ -1,0 +1,42 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #1b2a41;
+  color: #1b2a41;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cartao {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 16px;
+  max-width: 500px;
+  text-align: center;
+}
+#tema {
+  font-size: 1.2rem;
+  color: #c9a227;
+}
+#lado {
+  font-size: 1.2rem;
+  color: #c9a227;
+}
+button {
+  background-color: #c9a227;
+  color: #fff;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+button:hover {
+  background-color: #a8851d;
+}
+#tempo {
+  font-size: 2.5rem;
+  margin-top: 1.5rem;
+}
