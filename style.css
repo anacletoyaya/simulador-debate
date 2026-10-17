@@ -280,6 +280,17 @@ button:disabled {
   cursor: not-allowed;
 }
 
+#sortear {
+  width: 100%;
+  margin-bottom: 0.6rem;
+}
+.explicacao {
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+  text-align: left;
+  margin: 0 0 1.2rem;
+}
+
 /* ----- Dicas e anotações ----- */
 #dica,
 #contraArg {
@@ -312,9 +323,6 @@ button:disabled {
 @media (max-width: 480px) {
   .botoes button {
     flex: 1 1 calc(50% - 0.5rem);
-  }
-  #sortear {
-    flex-basis: 100%;
   }
 }
 
