@@ -58,31 +58,3 @@ button:disabled {
   font-size: 1rem;
   margin-top: 1rem;
 }
-
-h2 {
-  font-size: 1rem;
-  margin: 1rem 0 0.3rem;
-}
-#avisoMicrofone {
-  color: #b00020;
-  font-size: 0.95rem;
-}
-#transcricao {
-  background-color: #f4f6f9;
-  padding: 0.8rem 1rem;
-  border-radius: 8px;
-  text-align: left;
-  min-height: 4rem;
-  max-height: 10rem;
-  overflow-y: auto;
-  margin: 0;
-}
-#resultado {
-  background-color: #f6f1dc;
-  border-left: 4px solid #c9a227;
-  padding: 0.8rem 1rem;
-  border-radius: 8px;
-  text-align: left;
-  margin-top: 1rem;
-  line-height: 1.6;
-}

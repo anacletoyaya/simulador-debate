@@ -102,204 +102,14 @@ const temas = [
 ];
 const lados = ["A favor", "Contra"];
 const DURACAO = 120;
-const VICIOS = ["né", "tipo", "então", "assim", "aí", "tá", "hum", "ahn"];
 
 let intervalo;
 let segundosRestantes = DURACAO;
 let cronometroPausado = false;
+let ultimoTema = -1;
 let temaAtual = null;
 let ladoAtual = null;
 
-// ---------- Microfone ----------
-const Reconhecimento =
-  window.SpeechRecognition || window.webkitSpeechRecognition;
-let reconhecimento = null;
-let ouvindo = false;
-let textoFinal = "";
-let textoParcial = "";
-
-function mostrarAviso(mensagem) {
-  const aviso = document.getElementById("avisoMicrofone");
-  aviso.textContent = mensagem;
-  aviso.hidden = false;
-}
-
-function mostrarTranscricao() {
-  const caixa = document.getElementById("transcricao");
-  caixa.textContent =
-    textoFinal + textoParcial ||
-    "Sua fala vai aparecer aqui enquanto você fala.";
-  caixa.scrollTop = caixa.scrollHeight;
-}
-
-function formatarTrecho(trecho) {
-  let t = trecho.trim();
-  if (!t) {
-    return "";
-  }
-  t = t.charAt(0).toUpperCase() + t.slice(1);
-  if (!/[.!?]$/.test(t)) {
-    t += ".";
-  }
-  return t + " ";
-}
-
-function criarReconhecimento() {
-  const r = new Reconhecimento();
-  r.lang = "pt-BR";
-  r.continuous = true;
-  r.interimResults = true;
-
-  r.onresult = function (evento) {
-    let parcial = "";
-    for (let i = evento.resultIndex; i < evento.results.length; i++) {
-      const trecho = evento.results[i][0].transcript;
-      if (evento.results[i].isFinal) {
-        textoFinal += formatarTrecho(trecho);
-      } else {
-        parcial += trecho;
-      }
-    }
-    textoParcial = parcial;
-    mostrarTranscricao();
-  };
-
-  r.onerror = function (evento) {
-    if (
-      evento.error === "not-allowed" ||
-      evento.error === "service-not-allowed"
-    ) {
-      ouvindo = false;
-      mostrarAviso(
-        "Permissão do microfone negada. Libere o microfone no navegador e sorteie de novo.",
-      );
-    }
-  };
-
-  // O Chrome encerra sozinho após silêncios; aqui ele é religado.
-  r.onend = function () {
-    if (ouvindo) {
-      try {
-        r.start();
-      } catch (e) {}
-    }
-  };
-
-  return r;
-}
-
-function iniciarMicrofone() {
-  textoFinal = "";
-  textoParcial = "";
-  mostrarTranscricao();
-  document.getElementById("resultado").hidden = true;
-  document.getElementById("avisoMicrofone").hidden = true;
-
-  if (!Reconhecimento) {
-    mostrarAviso(
-      "Seu navegador não suporta transcrição de voz. Use o Chrome ou o Edge.",
-    );
-    return;
-  }
-
-  pararMicrofone();
-  reconhecimento = criarReconhecimento();
-  ouvindo = true;
-  try {
-    reconhecimento.start();
-  } catch (e) {}
-}
-
-function pausarMicrofone() {
-  ouvindo = false;
-  if (reconhecimento) {
-    reconhecimento.stop();
-  }
-}
-
-function retomarMicrofone() {
-  if (!reconhecimento) {
-    return;
-  }
-  ouvindo = true;
-  try {
-    reconhecimento.start();
-  } catch (e) {}
-}
-
-function pararMicrofone() {
-  ouvindo = false;
-  if (reconhecimento) {
-    reconhecimento.onend = null;
-    reconhecimento.stop();
-    reconhecimento = null;
-  }
-}
-
-// ---------- Resultado ----------
-function normalizarPalavras(texto) {
-  return texto
-    .toLowerCase()
-    .replace(/[.,!?;:()"']/g, "")
-    .split(/\s+/)
-    .filter(Boolean);
-}
-
-function mostrarResultado(segundosFalados) {
-  const resultado = document.getElementById("resultado");
-  const palavras = normalizarPalavras(textoFinal + textoParcial);
-
-  if (palavras.length === 0) {
-    resultado.innerHTML =
-      "<strong>Resultado</strong><br>Não captei nenhuma fala. Verifique se o microfone está liberado e funcionando.";
-    resultado.hidden = false;
-    return;
-  }
-
-  const minutos = Math.max(segundosFalados, 1) / 60;
-  const ritmo = Math.round(palavras.length / minutos);
-
-  const contagem = {};
-  palavras.forEach(function (p) {
-    if (VICIOS.includes(p)) {
-      contagem[p] = (contagem[p] || 0) + 1;
-    }
-  });
-  const totalVicios = Object.values(contagem).reduce(function (a, b) {
-    return a + b;
-  }, 0);
-  const lista = Object.keys(contagem)
-    .map(function (p) {
-      return p + " (" + contagem[p] + "x)";
-    })
-    .join(", ");
-
-  resultado.innerHTML =
-    "<strong>Resultado</strong><br>" +
-    "Palavras: " +
-    palavras.length +
-    "<br>" +
-    "Ritmo: " +
-    ritmo +
-    " palavras por minuto<br>" +
-    "Vícios de linguagem: " +
-    (totalVicios > 0 ? totalVicios + " — " + lista : "nenhum detectado");
-  resultado.hidden = false;
-}
-
-function finalizarFala() {
-  if (!Reconhecimento) {
-    return;
-  }
-  const segundosFalados = DURACAO - segundosRestantes;
-  pararMicrofone();
-  // Espera um instante para chegarem as últimas palavras transcritas.
-  setTimeout(function () {
-    mostrarResultado(segundosFalados);
-  }, 600);
-}
-
-// ---------- Cronômetro ----------
 function atualizarTempo() {
   const tempo = document.getElementById("tempo");
   const min = String(Math.floor(segundosRestantes / 60)).padStart(2, "0");
@@ -324,8 +134,6 @@ function decrementarTempo() {
     tempo.textContent = "Tempo esgotado!";
     tempo.classList.add("esgotado");
     document.getElementById("pausarTempo").disabled = true;
-    document.getElementById("encerrar").disabled = true;
-    finalizarFala();
   }
 }
 
@@ -342,12 +150,10 @@ function alternarPausaCronometro() {
   if (cronometroPausado) {
     clearInterval(intervalo);
     intervalo = null;
-    pausarMicrofone();
     return;
   }
 
   intervalo = setInterval(decrementarTempo, 1000);
-  retomarMicrofone();
 }
 
 function iniciarCronometro(segundos) {
@@ -363,23 +169,27 @@ function iniciarCronometro(segundos) {
   intervalo = setInterval(decrementarTempo, 1000);
 }
 
-// ---------- Botões ----------
 document.getElementById("sortear").addEventListener("click", function () {
-  temaAtual = temas[Math.floor(Math.random() * temas.length)];
+  let indice;
+  do {
+    indice = Math.floor(Math.random() * temas.length);
+  } while (indice === ultimoTema);
+  ultimoTema = indice;
+  temaAtual = temas[indice];
   ladoAtual = lados[Math.floor(Math.random() * lados.length)];
+
   document.getElementById("tema").textContent = temaAtual.texto;
   document.getElementById("lado").textContent = "Você defende: " + ladoAtual;
   document.getElementById("lado").style.color =
     ladoAtual === "A favor" ? "green" : "red";
 
-  document.getElementById("dica").hidden = true;
+  const dica = document.getElementById("dica");
+  dica.hidden = true;
   const botaoDica = document.getElementById("verDica");
   botaoDica.textContent = "Ver dica";
   botaoDica.disabled = false;
-  document.getElementById("encerrar").disabled = false;
 
   iniciarCronometro(DURACAO);
-  iniciarMicrofone();
 });
 
 document
@@ -397,15 +207,4 @@ document.getElementById("verDica").addEventListener("click", function () {
     dica.hidden = true;
     this.textContent = "Ver dica";
   }
-});
-
-document.getElementById("encerrar").addEventListener("click", function () {
-  clearInterval(intervalo);
-  intervalo = null;
-  cronometroPausado = false;
-  const botaoPausa = document.getElementById("pausarTempo");
-  botaoPausa.textContent = "Pausar tempo";
-  botaoPausa.disabled = true;
-  this.disabled = true;
-  finalizarFala();
 });
