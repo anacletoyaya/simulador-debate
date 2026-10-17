@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1b2a41" />
     <title>Simulador de Debate</title>
     <link rel="stylesheet" href="style.css" />
   </head>
@@ -11,11 +12,18 @@
       <h1>Simulador de Debate</h1>
       <p id="tema">Clique para sortear</p>
       <p id="lado"></p>
-      <button id="sortear">Sortear debate</button>
-      <button id="pausarTempo" disabled>Pausar tempo</button>
-      <button id="verDica" disabled>Ver dica</button>
+
+      <p id="fase"></p>
+      <p id="tempo">01:00</p>
+      <div id="barra"><div id="barraPreenchida"></div></div>
+
+      <div class="botoes">
+        <button id="sortear">Sortear debate</button>
+        <button id="pausarTempo" disabled>Pausar tempo</button>
+        <button id="pularPrep" disabled>Pular preparação</button>
+        <button id="verDica" disabled>Ver dica</button>
+      </div>
       <p id="dica" hidden></p>
-      <p id="tempo">02:00</p>
     </main>
     <script src="script.js"></script>
   </body>

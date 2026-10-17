@@ -100,15 +100,22 @@ const temas = [
       "Afasta pessoas qualificadas, aumenta a dependência de financiadores e corrupção e deixa a política só para quem já é rico.",
   },
 ];
+
 const lados = ["A favor", "Contra"];
+const PREPARACAO = 60;
 const DURACAO = 120;
 
 let intervalo;
-let segundosRestantes = DURACAO;
+let segundosRestantes = PREPARACAO;
+let totalFase = PREPARACAO;
 let cronometroPausado = false;
-let ultimoTema = -1;
+let fase = null;
 let temaAtual = null;
 let ladoAtual = null;
+
+function escolher(lista) {
+  return lista[Math.floor(Math.random() * lista.length)];
+}
 
 function atualizarTempo() {
   const tempo = document.getElementById("tempo");
@@ -116,7 +123,9 @@ function atualizarTempo() {
   const seg = String(segundosRestantes % 60).padStart(2, "0");
 
   tempo.textContent = min + ":" + seg;
-  tempo.style.color = segundosRestantes <= 10 ? "red" : "#1b2a41";
+  tempo.classList.toggle("urgente", segundosRestantes <= 10);
+  document.getElementById("barraPreenchida").style.width =
+    (segundosRestantes / totalFase) * 100 + "%";
 }
 
 function decrementarTempo() {
@@ -130,9 +139,17 @@ function decrementarTempo() {
   if (segundosRestantes <= 0) {
     clearInterval(intervalo);
     intervalo = null;
+
+    if (fase === "preparacao") {
+      iniciarFase("fala");
+      return;
+    }
+
     const tempo = document.getElementById("tempo");
     tempo.textContent = "Tempo esgotado!";
     tempo.classList.add("esgotado");
+    document.getElementById("fase").textContent = "Fim do debate";
+    document.body.dataset.fase = "fim";
     document.getElementById("pausarTempo").disabled = true;
   }
 }
@@ -160,6 +177,7 @@ function iniciarCronometro(segundos) {
   clearInterval(intervalo);
   intervalo = null;
   segundosRestantes = segundos;
+  totalFase = segundos;
   cronometroPausado = false;
   document.getElementById("tempo").classList.remove("esgotado");
   const botaoPausa = document.getElementById("pausarTempo");
@@ -169,32 +187,71 @@ function iniciarCronometro(segundos) {
   intervalo = setInterval(decrementarTempo, 1000);
 }
 
-document.getElementById("sortear").addEventListener("click", function () {
-  let indice;
-  do {
-    indice = Math.floor(Math.random() * temas.length);
-  } while (indice === ultimoTema);
-  ultimoTema = indice;
-  temaAtual = temas[indice];
-  ladoAtual = lados[Math.floor(Math.random() * lados.length)];
+function iniciarFase(nome) {
+  fase = nome;
+  document.body.dataset.fase = nome;
+  const rotulo = document.getElementById("fase");
+  const botaoPular = document.getElementById("pularPrep");
 
-  document.getElementById("tema").textContent = temaAtual.texto;
-  document.getElementById("lado").textContent = "Você defende: " + ladoAtual;
-  document.getElementById("lado").style.color =
-    ladoAtual === "A favor" ? "green" : "red";
+  if (nome === "preparacao") {
+    rotulo.textContent = "Preparação: organize suas ideias";
+    botaoPular.disabled = false;
+    iniciarCronometro(PREPARACAO);
+  } else {
+    rotulo.textContent = "Fala: é a sua vez!";
+    botaoPular.disabled = true;
+    iniciarCronometro(DURACAO);
+  }
+}
 
-  const dica = document.getElementById("dica");
-  dica.hidden = true;
+function sortear() {
+  const botao = document.getElementById("sortear");
+  const elTema = document.getElementById("tema");
+  const elLado = document.getElementById("lado");
   const botaoDica = document.getElementById("verDica");
-  botaoDica.textContent = "Ver dica";
-  botaoDica.disabled = false;
 
-  iniciarCronometro(DURACAO);
-});
+  clearInterval(intervalo);
+  intervalo = null;
+  botao.disabled = true;
+  document.getElementById("pausarTempo").disabled = true;
+  document.getElementById("pularPrep").disabled = true;
+  botaoDica.disabled = true;
+  document.getElementById("dica").hidden = true;
+  elLado.textContent = "";
+  elLado.className = "";
+  elTema.classList.add("girando");
+
+  temaAtual = escolher(temas);
+  ladoAtual = escolher(lados);
+
+  let giros = 0;
+  const roleta = setInterval(function () {
+    elTema.textContent = escolher(temas).texto;
+    giros++;
+
+    if (giros >= 12) {
+      clearInterval(roleta);
+      elTema.classList.remove("girando");
+      elTema.textContent = temaAtual.texto;
+      elLado.textContent = "Você defende: " + ladoAtual;
+      elLado.className = ladoAtual === "A favor" ? "favor" : "contra";
+      botao.disabled = false;
+      botaoDica.textContent = "Ver dica";
+      botaoDica.disabled = false;
+      iniciarFase("preparacao");
+    }
+  }, 90);
+}
+
+document.getElementById("sortear").addEventListener("click", sortear);
 
 document
   .getElementById("pausarTempo")
   .addEventListener("click", alternarPausaCronometro);
+
+document.getElementById("pularPrep").addEventListener("click", function () {
+  iniciarFase("fala");
+});
 
 document.getElementById("verDica").addEventListener("click", function () {
   const dica = document.getElementById("dica");
