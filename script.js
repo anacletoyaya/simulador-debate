@@ -1,122 +1,152 @@
-const temas = [
-  {
-    texto: "Deveria haver pena de morte?",
-    favor:
-      "Justiça proporcional para crimes gravíssimos, possível efeito de dissuasão e fim da reincidência do condenado.",
-    contra:
-      "Risco irreversível de executar um inocente, falta de evidência forte de que dissuade mais que a prisão perpétua e aplicação desigual da pena.",
-  },
-  {
-    texto: "O homeschooling deveria ser permitido?",
-    favor:
-      "Ensino personalizado no ritmo do aluno, liberdade das famílias de escolher a educação dos filhos e proteção contra bullying.",
-    contra:
-      "Perda da convivência com pessoas diferentes, que ensina a lidar com conflitos, e menos fiscalização da qualidade do ensino e do bem-estar da criança.",
-  },
-  {
-    texto: "O voto deveria ser obrigatório?",
-    favor:
-      "Maior representatividade e legitimidade dos eleitos, e o voto vira hábito cívico em vez de depender só de quem se mobiliza.",
-    contra:
-      "Liberdade individual inclui o direito de não votar, e obrigar gera votos sem interesse, brancos e nulos, sem aumentar o engajamento real.",
-  },
-  {
-    texto: "O aquecimento global é responsabilidade do ser humano?",
-    favor:
-      "O consenso científico (IPCC) aponta que o aumento do CO2 acompanha a industrialização e a queima de combustíveis fósseis.",
-    contra:
-      "Lado mais difícil, pois o consenso é forte. Foque nos ciclos naturais do clima e nas incertezas sobre a magnitude da influência humana.",
-  },
-  {
-    texto: "A legalização da maconha é benéfica para a sociedade?",
-    favor:
-      "Enfraquece o tráfico, reduz encarceramentos, permite regulação e arrecadação e facilita o uso medicinal.",
-    contra:
-      "Riscos de dependência e efeitos em adolescentes, possível aumento do consumo e perigo de dirigir sob efeito.",
-  },
-  {
-    texto: "A inteligência artificial representa uma ameaça para a humanidade?",
-    favor:
-      "Desemprego em massa, desinformação com deepfakes, concentração de poder nas mãos de poucas empresas e sistemas difíceis de controlar.",
-    contra:
-      "É uma ferramenta com grandes ganhos em saúde e produtividade, pode ser regulada, e tecnologias anteriores também geraram medo e depois novos empregos.",
-  },
-  {
-    texto: "O trabalho remoto é mais produtivo do que o trabalho presencial?",
-    favor:
-      "Sem tempo perdido no deslocamento, com mais foco, flexibilidade e acesso a talentos de qualquer lugar.",
-    contra:
-      "Prejudica colaboração e inovação espontânea, dificulta a integração de novos funcionários e pode causar isolamento.",
-  },
-  {
-    texto: "A ONU ainda é eficaz?",
-    favor:
-      "Mantém um canal diplomático global, tem agências importantes (OMS, UNICEF, ACNUR) e operações de paz que evitam conflitos piores.",
-    contra:
-      "O veto no Conselho de Segurança paralisa decisões, a ONU não tem poder para impor o que decide e a burocracia é lenta.",
-  },
-  {
-    texto: "Países ricos deveriam pagar mais pelo combate à crise climática?",
-    favor:
-      "Responsabilidade histórica pelas emissões acumuladas, mais capacidade financeira, e os países pobres são os mais afetados.",
-    contra:
-      "Hoje grandes emissores são economias emergentes, há risco de mau uso dos recursos, e a responsabilidade deveria ser compartilhada.",
-  },
-  {
-    texto:
-      "Sanções econômicas são uma forma justa de pressionar outros países?",
-    favor:
-      "São uma alternativa à guerra, pressionam sem violência direta e sinalizam condenação internacional, como no caso do apartheid.",
-    contra:
-      "Atingem mais a população civil que os governos, regimes se adaptam e as sanções podem até fortalecer o regime.",
-  },
-  {
-    texto:
-      "Todos os países deveriam ter direito de veto no Conselho de Segurança?",
-    favor:
-      "Igualdade entre países soberanos, mais legitimidade às decisões e fim do domínio das grandes potências.",
-    contra:
-      "Com mais vetos o Conselho travaria ainda mais, e as potências com capacidade militar é que sustentam a execução das decisões.",
-  },
-  {
-    texto: "Fronteiras deveriam ser mais abertas para imigrantes?",
-    favor:
-      "Ganhos econômicos com mão de obra, resposta ao envelhecimento da população e respeito à liberdade de movimento e aos direitos humanos.",
-    contra:
-      "Pressão sobre serviços públicos, desafios de segurança e controle e dificuldade de integração se a chegada for rápida demais.",
-  },
-  {
-    texto: "A globalização trouxe mais benefícios do que prejuízos?",
-    favor:
-      "Preços menores, difusão de tecnologia e milhões de pessoas tiradas da pobreza com o comércio internacional.",
-    contra:
-      "Aumento da desigualdade, desindustrialização de regiões, dependência de cadeias de produção distantes e perda de diversidade cultural.",
-  },
-  {
-    texto: "Políticos deveriam ter salários menores?",
-    favor:
-      "Reduz gastos públicos, aproxima o político da realidade da população e desestimula quem entra na política só por dinheiro.",
-    contra:
-      "Afasta pessoas qualificadas, aumenta a dependência de financiadores e corrupção e deixa a política só para quem já é rico.",
-  },
-];
-
 const lados = ["A favor", "Contra"];
-const PREPARACAO = 60;
-const DURACAO = 120;
 
 let intervalo;
-let segundosRestantes = PREPARACAO;
-let totalFase = PREPARACAO;
+let segundosRestantes = 60;
+let totalFase = 60;
 let cronometroPausado = false;
 let fase = null;
 let temaAtual = null;
 let ladoAtual = null;
+let audioCtx = null;
 
 function escolher(lista) {
   return lista[Math.floor(Math.random() * lista.length)];
 }
 
+function lerSegundos(id) {
+  return Number(document.getElementById(id).value);
+}
+
+// ---------- Áreas ----------
+function preencherAreas() {
+  const select = document.getElementById("area");
+  const areas = [];
+
+  temas.forEach(function (t) {
+    if (!areas.includes(t.area)) {
+      areas.push(t.area);
+    }
+  });
+
+  areas
+    .sort(function (a, b) {
+      return a.localeCompare(b, "pt-BR");
+    })
+    .forEach(function (nome) {
+      const opcao = document.createElement("option");
+      opcao.value = nome;
+      opcao.textContent = nome;
+      select.appendChild(opcao);
+    });
+}
+
+// ---------- Som ----------
+function prepararAudio() {
+  try {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === "suspended") {
+      audioCtx.resume();
+    }
+  } catch (e) {}
+}
+
+function tocarSom(tipo) {
+  if (!document.getElementById("somAtivo").checked || !audioCtx) {
+    return;
+  }
+
+  const tons = { aviso: [880], inicio: [1000, 1000], fim: [660, 660, 660] };
+
+  try {
+    tons[tipo].forEach(function (frequencia, i) {
+      const osc = audioCtx.createOscillator();
+      const ganho = audioCtx.createGain();
+      const inicio = audioCtx.currentTime + i * 0.25;
+
+      osc.frequency.value = frequencia;
+      osc.connect(ganho);
+      ganho.connect(audioCtx.destination);
+      ganho.gain.setValueAtTime(0.2, inicio);
+      ganho.gain.exponentialRampToValueAtTime(0.001, inicio + 0.2);
+      osc.start(inicio);
+      osc.stop(inicio + 0.22);
+    });
+  } catch (e) {}
+}
+
+// ---------- Textos de apoio ----------
+function atualizarRoteiro() {
+  const roteiro = document.getElementById("roteiro");
+
+  if (fase === "preparacao") {
+    roteiro.textContent =
+      "Defina sua tese, escolha 2 argumentos e pense em 1 exemplo.";
+  } else if (fase === "fala") {
+    const proporcao = (totalFase - segundosRestantes) / totalFase;
+    if (proporcao < 0.25) {
+      roteiro.textContent =
+        "1) Tese: diga com clareza qual lado você defende e por quê.";
+    } else if (proporcao < 0.75) {
+      roteiro.textContent =
+        "2) Argumentos: desenvolva suas ideias, cada uma com um exemplo ou dado.";
+    } else {
+      roteiro.textContent = "3) Conclusão: retome sua tese e feche com força.";
+    }
+  } else if (fase === "fim") {
+    roteiro.textContent =
+      "Fim! Veja o outro lado e pense em como você responderia.";
+  } else {
+    roteiro.textContent = "";
+  }
+}
+
+function mostrarFontes(fontes) {
+  const caixa = document.getElementById("fontesTema");
+  caixa.textContent = "";
+
+  if (!fontes || fontes.length === 0) {
+    caixa.hidden = true;
+    return;
+  }
+
+  caixa.appendChild(document.createTextNode("Fontes: "));
+
+  fontes.forEach(function (fonte, i) {
+    const link = document.createElement("a");
+    link.href = fonte.url;
+    link.textContent = fonte.titulo;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    caixa.appendChild(link);
+    if (i < fontes.length - 1) {
+      caixa.appendChild(document.createTextNode(" · "));
+    }
+  });
+
+  caixa.hidden = false;
+}
+
+function mostrarLado() {
+  const elLado = document.getElementById("lado");
+  elLado.textContent = "Você defende: " + ladoAtual;
+  elLado.className = ladoAtual === "A favor" ? "favor" : "contra";
+}
+
+function esconderAjudas() {
+  document.getElementById("dica").hidden = true;
+  document.getElementById("contraArg").hidden = true;
+  document.getElementById("verDica").textContent = "Ver dica";
+  document.getElementById("verContra").textContent = "Ver outro lado";
+}
+
+function alternarBotoesDeApoio(ativos) {
+  document.getElementById("verDica").disabled = !ativos;
+  document.getElementById("verContra").disabled = !ativos;
+}
+
+// ---------- Cronômetro ----------
 function atualizarTempo() {
   const tempo = document.getElementById("tempo");
   const min = String(Math.floor(segundosRestantes / 60)).padStart(2, "0");
@@ -126,6 +156,7 @@ function atualizarTempo() {
   tempo.classList.toggle("urgente", segundosRestantes <= 10);
   document.getElementById("barraPreenchida").style.width =
     (segundosRestantes / totalFase) * 100 + "%";
+  atualizarRoteiro();
 }
 
 function decrementarTempo() {
@@ -136,6 +167,10 @@ function decrementarTempo() {
   segundosRestantes--;
   atualizarTempo();
 
+  if (segundosRestantes === 30 && totalFase > 30) {
+    tocarSom("aviso");
+  }
+
   if (segundosRestantes <= 0) {
     clearInterval(intervalo);
     intervalo = null;
@@ -145,12 +180,15 @@ function decrementarTempo() {
       return;
     }
 
+    fase = "fim";
     const tempo = document.getElementById("tempo");
     tempo.textContent = "Tempo esgotado!";
     tempo.classList.add("esgotado");
     document.getElementById("fase").textContent = "Fim do debate";
     document.body.dataset.fase = "fim";
     document.getElementById("pausarTempo").disabled = true;
+    atualizarRoteiro();
+    tocarSom("fim");
   }
 }
 
@@ -196,54 +234,124 @@ function iniciarFase(nome) {
   if (nome === "preparacao") {
     rotulo.textContent = "Preparação: organize suas ideias";
     botaoPular.disabled = false;
-    iniciarCronometro(PREPARACAO);
+    iniciarCronometro(lerSegundos("selPrep"));
   } else {
     rotulo.textContent = "Fala: é a sua vez!";
     botaoPular.disabled = true;
-    iniciarCronometro(DURACAO);
+    iniciarCronometro(lerSegundos("selFala"));
+    tocarSom("inicio");
   }
 }
 
-function sortear() {
-  const botao = document.getElementById("sortear");
-  const elTema = document.getElementById("tema");
-  const elLado = document.getElementById("lado");
-  const botaoDica = document.getElementById("verDica");
+// Mostra o tempo de preparação escolhido enquanto nenhum debate começou
+function atualizarTempoInicial() {
+  if (fase !== null) {
+    return;
+  }
+  segundosRestantes = lerSegundos("selPrep");
+  totalFase = segundosRestantes;
+  atualizarTempo();
+}
 
+// ---------- Sorteio e tema próprio ----------
+function limparParaSorteio() {
   clearInterval(intervalo);
   intervalo = null;
-  botao.disabled = true;
+  fase = null;
+
+  document.getElementById("sortear").disabled = true;
+  document.getElementById("usarMeuTema").disabled = true;
   document.getElementById("pausarTempo").disabled = true;
   document.getElementById("pularPrep").disabled = true;
-  botaoDica.disabled = true;
-  document.getElementById("dica").hidden = true;
+  alternarBotoesDeApoio(false);
+  esconderAjudas();
+
+  document.getElementById("anotacoes").value = "";
+  document.getElementById("roteiro").textContent = "";
+  document.getElementById("areaTema").textContent = "";
+  document.getElementById("avisoTema").hidden = true;
+  mostrarFontes(null);
+
+  const elLado = document.getElementById("lado");
   elLado.textContent = "";
   elLado.className = "";
-  elTema.classList.add("girando");
+}
 
-  temaAtual = escolher(temas);
+function comecarDebate() {
+  const proprio = temaAtual.proprio === true;
+  const elTema = document.getElementById("tema");
+
+  elTema.classList.remove("girando");
+  elTema.textContent = temaAtual.texto;
+  document.getElementById("areaTema").textContent = temaAtual.area;
+  mostrarFontes(temaAtual.fontes);
+  mostrarLado();
+  document.getElementById("avisoTema").hidden = !proprio;
+
+  document.getElementById("sortear").disabled = false;
+  document.getElementById("usarMeuTema").disabled = false;
+  alternarBotoesDeApoio(!proprio);
+
+  iniciarFase("preparacao");
+}
+
+function sortear() {
+  prepararAudio();
+
+  const areaEscolhida = document.getElementById("area").value;
+  const opcoes = areaEscolhida
+    ? temas.filter(function (t) {
+        return t.area === areaEscolhida;
+      })
+    : temas;
+
+  limparParaSorteio();
+  document.getElementById("tema").classList.add("girando");
+
+  temaAtual = escolher(opcoes);
   ladoAtual = escolher(lados);
 
   let giros = 0;
   const roleta = setInterval(function () {
-    elTema.textContent = escolher(temas).texto;
+    document.getElementById("tema").textContent = escolher(opcoes).texto;
     giros++;
 
     if (giros >= 12) {
       clearInterval(roleta);
-      elTema.classList.remove("girando");
-      elTema.textContent = temaAtual.texto;
-      elLado.textContent = "Você defende: " + ladoAtual;
-      elLado.className = ladoAtual === "A favor" ? "favor" : "contra";
-      botao.disabled = false;
-      botaoDica.textContent = "Ver dica";
-      botaoDica.disabled = false;
-      iniciarFase("preparacao");
+      comecarDebate();
     }
   }, 90);
 }
 
+function usarTemaProprio() {
+  const campo = document.getElementById("temaProprio");
+  const texto = campo.value.trim();
+
+  if (!texto) {
+    campo.focus();
+    return;
+  }
+
+  prepararAudio();
+  limparParaSorteio();
+
+  temaAtual = { area: "Tema próprio", texto: texto, proprio: true };
+  ladoAtual = escolher(lados);
+  comecarDebate();
+}
+
+// ---------- Eventos ----------
 document.getElementById("sortear").addEventListener("click", sortear);
+document
+  .getElementById("usarMeuTema")
+  .addEventListener("click", usarTemaProprio);
+document
+  .getElementById("temaProprio")
+  .addEventListener("keydown", function (evento) {
+    if (evento.key === "Enter") {
+      usarTemaProprio();
+    }
+  });
 
 document
   .getElementById("pausarTempo")
@@ -253,11 +361,15 @@ document.getElementById("pularPrep").addEventListener("click", function () {
   iniciarFase("fala");
 });
 
+document
+  .getElementById("selPrep")
+  .addEventListener("change", atualizarTempoInicial);
+
 document.getElementById("verDica").addEventListener("click", function () {
   const dica = document.getElementById("dica");
   if (dica.hidden) {
-    dica.textContent =
-      ladoAtual === "A favor" ? temaAtual.favor : temaAtual.contra;
+    const texto = ladoAtual === "A favor" ? temaAtual.favor : temaAtual.contra;
+    dica.textContent = "Argumentos comuns para esse lado: " + texto;
     dica.hidden = false;
     this.textContent = "Esconder dica";
   } else {
@@ -265,3 +377,20 @@ document.getElementById("verDica").addEventListener("click", function () {
     this.textContent = "Ver dica";
   }
 });
+
+document.getElementById("verContra").addEventListener("click", function () {
+  const caixa = document.getElementById("contraArg");
+  if (caixa.hidden) {
+    const texto = ladoAtual === "A favor" ? temaAtual.contra : temaAtual.favor;
+    caixa.textContent = "Argumentos do outro lado: " + texto;
+    caixa.hidden = false;
+    this.textContent = "Esconder outro lado";
+  } else {
+    caixa.hidden = true;
+    this.textContent = "Ver outro lado";
+  }
+});
+
+// ---------- Início ----------
+preencherAreas();
+atualizarTempoInicial();

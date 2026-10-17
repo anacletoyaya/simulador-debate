@@ -1,7 +1,44 @@
 :root {
-  --azul-escuro: #1b2a41;
+  color-scheme: light dark;
+  --fundo: #1b2a41;
+  --cartao: #ffffff;
+  --texto: #1b2a41;
+  --texto-suave: #6b7280;
+  --borda: #c8cdd6;
+  --campo: #ffffff;
+  --trilho: #e6e9ef;
+  --roteiro: #eef3fb;
+  --dica-fundo: #f6f1dc;
+  --contra-fundo: #fbeeee;
+  --favor-fundo: #e3f4ea;
+  --favor-texto: #1e7a45;
+  --contra-lado-fundo: #fbe6e3;
+  --contra-lado-texto: #b03a2e;
+  --desativado: #ccc;
+  --urgente: #d62828;
   --dourado: #c9a227;
   --dourado-escuro: #a8851d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fundo: #0e1522;
+    --cartao: #1c2738;
+    --texto: #e8ecf3;
+    --texto-suave: #9aa5b8;
+    --borda: #3a4760;
+    --campo: #141c2b;
+    --trilho: #2c3850;
+    --roteiro: #22304a;
+    --dica-fundo: #3a3320;
+    --contra-fundo: #3b2323;
+    --favor-fundo: #1d3a2b;
+    --favor-texto: #6fd49a;
+    --contra-lado-fundo: #3f2523;
+    --contra-lado-texto: #ff9a8f;
+    --desativado: #4a5568;
+    --urgente: #ff6b6b;
+  }
 }
 
 * {
@@ -9,10 +46,10 @@
 }
 
 body {
-  --cor-fase: var(--azul-escuro);
+  --cor-fase: var(--texto);
   font-family: Arial, sans-serif;
-  background-color: var(--azul-escuro);
-  color: var(--azul-escuro);
+  background-color: var(--fundo);
+  color: var(--texto);
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
@@ -30,7 +67,7 @@ body[data-fase="fim"] {
 }
 
 .cartao {
-  background-color: #fff;
+  background-color: var(--cartao);
   padding: clamp(1.2rem, 5vw, 2rem);
   border-radius: 16px;
   width: 100%;
@@ -43,6 +80,85 @@ body[data-fase="fim"] {
 h1 {
   font-size: clamp(1.4rem, 6vw, 2rem);
   margin: 0 0 1rem;
+}
+
+/* ----- Escolhas antes do sorteio ----- */
+.filtro {
+  text-align: left;
+  margin-bottom: 1rem;
+}
+.filtro label,
+.anotacoes label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+}
+.linha {
+  display: flex;
+  gap: 0.5rem;
+}
+.linha input {
+  flex: 1;
+  min-width: 0;
+}
+
+select,
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--texto);
+  background-color: var(--campo);
+}
+select,
+input[type="text"] {
+  min-height: 44px;
+}
+textarea {
+  padding: 0.7rem;
+  resize: vertical;
+}
+
+.config {
+  text-align: left;
+  margin-bottom: 1rem;
+}
+.config summary {
+  cursor: pointer;
+  font-weight: bold;
+  min-height: 32px;
+}
+.config-campos {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+.config-campos label {
+  font-weight: bold;
+}
+.config-campos .check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-weight: normal;
+  margin-top: 0.4rem;
+}
+.config-campos .check input {
+  margin-top: 0.2rem;
+}
+
+/* ----- Tema sorteado ----- */
+#areaTema {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--texto-suave);
+  margin: 0 0 0.3rem;
+  min-height: 1.2em;
 }
 
 #tema {
@@ -67,14 +183,31 @@ h1 {
   display: none;
 }
 #lado.favor {
-  background-color: #e3f4ea;
-  color: #1e7a45;
+  background-color: var(--favor-fundo);
+  color: var(--favor-texto);
 }
 #lado.contra {
-  background-color: #fbe6e3;
-  color: #b03a2e;
+  background-color: var(--contra-lado-fundo);
+  color: var(--contra-lado-texto);
 }
 
+.fontes {
+  font-size: 0.85rem;
+}
+.fontes a {
+  color: var(--texto);
+  word-break: break-word;
+}
+#fontesTema {
+  margin: 0.6rem 0 0;
+}
+#avisoTema {
+  font-size: 0.9rem;
+  color: var(--texto-suave);
+  margin: 0.6rem 0 0;
+}
+
+/* ----- Cronômetro ----- */
 #fase {
   font-weight: bold;
   color: var(--cor-fase);
@@ -89,7 +222,7 @@ h1 {
   margin: 0.3rem 0 0;
 }
 #tempo.urgente {
-  color: #d62828;
+  color: var(--urgente);
 }
 #tempo.esgotado {
   font-size: clamp(1.6rem, 8vw, 2rem);
@@ -97,7 +230,7 @@ h1 {
 
 #barra {
   height: 10px;
-  background-color: #e6e9ef;
+  background-color: var(--trilho);
   border-radius: 999px;
   overflow: hidden;
   margin: 0.8rem 0 1.2rem;
@@ -111,6 +244,18 @@ h1 {
     background-color 0.4s;
 }
 
+#roteiro {
+  background-color: var(--roteiro);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.95rem;
+  margin: 0 0 1.2rem;
+}
+#roteiro:empty {
+  display: none;
+}
+
+/* ----- Botões ----- */
 .botoes {
   display: flex;
   flex-wrap: wrap;
@@ -131,18 +276,37 @@ button:hover {
   background-color: var(--dourado-escuro);
 }
 button:disabled {
-  background-color: #ccc;
+  background-color: var(--desativado);
   cursor: not-allowed;
 }
 
-#dica {
-  background-color: #f6f1dc;
-  border-left: 4px solid var(--dourado);
+/* ----- Dicas e anotações ----- */
+#dica,
+#contraArg {
   padding: 0.8rem 1rem;
   border-radius: 8px;
   text-align: left;
   font-size: 1rem;
   margin: 1rem 0 0;
+}
+#dica {
+  background-color: var(--dica-fundo);
+  border-left: 4px solid var(--dourado);
+}
+#contraArg {
+  background-color: var(--contra-fundo);
+  border-left: 4px solid #c0392b;
+}
+
+.anotacoes {
+  text-align: left;
+  margin-top: 1.2rem;
+}
+
+.aviso {
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+  margin: 1.2rem 0 0;
 }
 
 @media (max-width: 480px) {

@@ -4,27 +4,96 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#1b2a41" />
+    <meta name="color-scheme" content="light dark" />
     <title>Simulador de Debate</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <main class="cartao">
       <h1>Simulador de Debate</h1>
+
+      <div class="filtro">
+        <label for="area">Área do tema</label>
+        <select id="area">
+          <option value="">Aleatória (todas as áreas)</option>
+        </select>
+      </div>
+
+      <div class="filtro">
+        <label for="temaProprio">Ou digite o seu tema</label>
+        <div class="linha">
+          <input
+            type="text"
+            id="temaProprio"
+            maxlength="120"
+            placeholder="Ex.: O VAR melhora o futebol?"
+          />
+          <button id="usarMeuTema">Usar tema</button>
+        </div>
+      </div>
+
+      <details class="config">
+        <summary>Configurações de tempo e som</summary>
+        <div class="config-campos">
+          <label for="selPrep">Preparação</label>
+          <select id="selPrep">
+            <option value="30">30 segundos</option>
+            <option value="60" selected>60 segundos</option>
+          </select>
+
+          <label for="selFala">Fala</label>
+          <select id="selFala">
+            <option value="60">1 minuto</option>
+            <option value="120" selected>2 minutos</option>
+            <option value="180">3 minutos</option>
+          </select>
+
+          <label class="check">
+            <input type="checkbox" id="somAtivo" checked />
+            Avisos sonoros (30 segundos finais e início/fim da fala)
+          </label>
+        </div>
+      </details>
+
+      <p id="areaTema"></p>
       <p id="tema">Clique para sortear</p>
       <p id="lado"></p>
+      <p id="fontesTema" class="fontes" hidden></p>
+      <p id="avisoTema" hidden>
+        Tema escrito por você: não há dicas nem fontes prontas. Use as anotações
+        para montar seus argumentos.
+      </p>
 
       <p id="fase"></p>
       <p id="tempo">01:00</p>
       <div id="barra"><div id="barraPreenchida"></div></div>
+      <p id="roteiro"></p>
 
       <div class="botoes">
         <button id="sortear">Sortear debate</button>
         <button id="pausarTempo" disabled>Pausar tempo</button>
         <button id="pularPrep" disabled>Pular preparação</button>
         <button id="verDica" disabled>Ver dica</button>
+        <button id="verContra" disabled>Ver outro lado</button>
       </div>
       <p id="dica" hidden></p>
+      <p id="contraArg" hidden></p>
+
+      <div class="anotacoes">
+        <label for="anotacoes">Anotações</label>
+        <textarea
+          id="anotacoes"
+          rows="4"
+          placeholder="Anote aqui seus tópicos e exemplos..."
+        ></textarea>
+      </div>
+
+      <p class="aviso">
+        As dicas são argumentos usados em debates, para treino. Confira as
+        informações em fontes confiáveis antes de usá-las.
+      </p>
     </main>
+    <script src="temas.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
